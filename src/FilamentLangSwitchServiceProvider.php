@@ -1,7 +1,11 @@
 <?php
 
-namespace VendorName\Skeleton;
+declare(strict_types=1);
 
+namespace Aldesrahim\FilamentLangSwitch;
+
+use Aldesrahim\FilamentLangSwitch\Commands\FilamentLangSwitchCommand;
+use Aldesrahim\FilamentLangSwitch\Testing\TestsFilamentLangSwitch;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -13,14 +17,12 @@ use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use VendorName\Skeleton\Commands\SkeletonCommand;
-use VendorName\Skeleton\Testing\TestsSkeleton;
 
-class SkeletonServiceProvider extends PackageServiceProvider
+final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
 {
-    public static string $name = 'skeleton';
+    public static string $name = 'filament-lang-switch';
 
-    public static string $viewNamespace = 'skeleton';
+    public static string $viewNamespace = 'filament-lang-switch';
 
     public function configurePackage(Package $package): void
     {
@@ -29,14 +31,14 @@ class SkeletonServiceProvider extends PackageServiceProvider
          *
          * More info: https://github.com/spatie/laravel-package-tools
          */
-        $package->name(static::$name)
+        $package->name(self::$name)
             ->hasCommands($this->getCommands())
-            ->hasInstallCommand(function (InstallCommand $command) {
+            ->hasInstallCommand(function (InstallCommand $command): void {
                 $command
                     ->publishConfigFile()
                     ->publishMigrations()
                     ->askToRunMigrations()
-                    ->askToStarRepoOnGitHub(':vendor_slug/:package_slug');
+                    ->askToStarRepoOnGitHub('aldesrahim/filament-lang-switch');
             });
 
         $configFileName = $package->shortName();
@@ -54,7 +56,7 @@ class SkeletonServiceProvider extends PackageServiceProvider
         }
 
         if (file_exists($package->basePath('/../resources/views'))) {
-            $package->hasViews(static::$viewNamespace);
+            $package->hasViews(self::$viewNamespace);
         }
     }
 
@@ -78,20 +80,20 @@ class SkeletonServiceProvider extends PackageServiceProvider
 
         // Handle Stubs
         if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__ . '/../stubs/') as $file) {
+            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
                 $this->publishes([
-                    $file->getRealPath() => base_path("stubs/skeleton/{$file->getFilename()}"),
-                ], 'skeleton-stubs');
+                    $file->getRealPath() => base_path("stubs/filament-lang-switch/{$file->getFilename()}"),
+                ], 'filament-lang-switch-stubs');
             }
         }
 
         // Testing
-        Testable::mixin(new TestsSkeleton);
+        Testable::mixin(new TestsFilamentLangSwitch);
     }
 
     protected function getAssetPackageName(): ?string
     {
-        return ':vendor_slug/:package_slug';
+        return 'aldesrahim/filament-lang-switch';
     }
 
     /**
@@ -100,9 +102,9 @@ class SkeletonServiceProvider extends PackageServiceProvider
     protected function getAssets(): array
     {
         return [
-            // AlpineComponent::make('skeleton', __DIR__ . '/../resources/dist/components/skeleton.js'),
-            Css::make('skeleton-styles', __DIR__ . '/../resources/dist/skeleton.css'),
-            Js::make('skeleton-scripts', __DIR__ . '/../resources/dist/skeleton.js'),
+            // AlpineComponent::make('filament-lang-switch', __DIR__ . '/../resources/dist/components/filament-lang-switch.js'),
+            Css::make('filament-lang-switch-styles', __DIR__.'/../resources/dist/filament-lang-switch.css'),
+            Js::make('filament-lang-switch-scripts', __DIR__.'/../resources/dist/filament-lang-switch.js'),
         ];
     }
 
@@ -112,7 +114,7 @@ class SkeletonServiceProvider extends PackageServiceProvider
     protected function getCommands(): array
     {
         return [
-            SkeletonCommand::class,
+            FilamentLangSwitchCommand::class,
         ];
     }
 
@@ -146,7 +148,7 @@ class SkeletonServiceProvider extends PackageServiceProvider
     protected function getMigrations(): array
     {
         return [
-            'create_skeleton_table',
+            'create_filament-lang-switch_table',
         ];
     }
 }

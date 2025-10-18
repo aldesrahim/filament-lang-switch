@@ -1,0 +1,12 @@
+*.md
+**/dist
+**/vendor
+**/public/build
+**/node_modules
+.github
+.prettierrc
+bin
+build
+composer.lock
+package-lock.json
+storage

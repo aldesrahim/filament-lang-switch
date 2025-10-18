@@ -154,7 +154,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     private function getMigrations(): array
     {
         return [
-            'create_filament-lang-switch_table',
+            'create_preferred_locales_table',
         ];
     }
 }

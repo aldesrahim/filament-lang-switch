@@ -58,6 +58,10 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
         if (file_exists($package->basePath('/../resources/views'))) {
             $package->hasViews(self::$viewNamespace);
         }
+
+        if (filled($routes = $this->getRoutes())) {
+            $package->hasRoutes($routes);
+        }
     }
 
     public function packageRegistered(): void {}
@@ -91,7 +95,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
         Testable::mixin(new TestsFilamentLangSwitch);
     }
 
-    protected function getAssetPackageName(): ?string
+    private function getAssetPackageName(): string
     {
         return 'aldesrahim/filament-lang-switch';
     }
@@ -99,7 +103,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<Asset>
      */
-    protected function getAssets(): array
+    private function getAssets(): array
     {
         return [
             // AlpineComponent::make('filament-lang-switch', __DIR__ . '/../resources/dist/components/filament-lang-switch.js'),
@@ -111,7 +115,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<class-string>
      */
-    protected function getCommands(): array
+    private function getCommands(): array
     {
         return [
             FilamentLangSwitchCommand::class,
@@ -121,7 +125,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<string>
      */
-    protected function getIcons(): array
+    private function getIcons(): array
     {
         return [];
     }
@@ -129,15 +133,15 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<string>
      */
-    protected function getRoutes(): array
+    private function getRoutes(): array
     {
-        return [];
+        return ['web'];
     }
 
     /**
      * @return array<string, mixed>
      */
-    protected function getScriptData(): array
+    private function getScriptData(): array
     {
         return [];
     }
@@ -145,7 +149,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<string>
      */
-    protected function getMigrations(): array
+    private function getMigrations(): array
     {
         return [
             'create_filament-lang-switch_table',

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Aldesrahim\FilamentLangSwitch;
 
-use Aldesrahim\FilamentLangSwitch\Commands\FilamentLangSwitchCommand;
 use Aldesrahim\FilamentLangSwitch\Testing\TestsFilamentLangSwitch;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
@@ -12,7 +11,6 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -58,6 +56,10 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
         if (file_exists($package->basePath('/../resources/views'))) {
             $package->hasViews(self::$viewNamespace);
         }
+
+        if (filled($routes = $this->getRoutes())) {
+            $package->hasRoutes($routes);
+        }
     }
 
     public function packageRegistered(): void {}
@@ -78,20 +80,34 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
         // Icon Registration
         FilamentIcon::register($this->getIcons());
 
-        // Handle Stubs
-        if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
-                $this->publishes([
-                    $file->getRealPath() => base_path("stubs/filament-lang-switch/{$file->getFilename()}"),
-                ], 'filament-lang-switch-stubs');
-            }
-        }
-
         // Testing
         Testable::mixin(new TestsFilamentLangSwitch);
+
+        $this->app->bind(function (): FilamentLangSwitch {
+            $availableLocales = config('filament-lang-switch.available_locales');
+
+            return new FilamentLangSwitch($availableLocales)
+                ->setCookieName(
+                    config('filament-lang-switch.stores.cookie.cookie_name')
+                )
+                ->setCookieMinutes(
+                    config('filament-lang-switch.stores.cookie.minutes')
+                )
+                ->setSessionKey(
+                    config('filament-lang-switch.stores.session.session_key')
+                )
+                ->setAuthGuard(
+                    config('filament-lang-switch.stores.user.guard')
+                )
+                ->enableUserPreferredLocaleCache(
+                    config('filament-lang-switch.stores.user.cache.enabled')
+                );
+        });
+
+        $this->app->alias(FilamentLangSwitch::class, self::$name);
     }
 
-    protected function getAssetPackageName(): ?string
+    private function getAssetPackageName(): string
     {
         return 'aldesrahim/filament-lang-switch';
     }
@@ -99,7 +115,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<Asset>
      */
-    protected function getAssets(): array
+    private function getAssets(): array
     {
         return [
             // AlpineComponent::make('filament-lang-switch', __DIR__ . '/../resources/dist/components/filament-lang-switch.js'),
@@ -111,33 +127,33 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<class-string>
      */
-    protected function getCommands(): array
+    private function getCommands(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function getIcons(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string>
+     */
+    private function getRoutes(): array
     {
         return [
-            FilamentLangSwitchCommand::class,
+            'web',
         ];
-    }
-
-    /**
-     * @return array<string>
-     */
-    protected function getIcons(): array
-    {
-        return [];
-    }
-
-    /**
-     * @return array<string>
-     */
-    protected function getRoutes(): array
-    {
-        return [];
     }
 
     /**
      * @return array<string, mixed>
      */
-    protected function getScriptData(): array
+    private function getScriptData(): array
     {
         return [];
     }
@@ -145,10 +161,10 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
     /**
      * @return array<string>
      */
-    protected function getMigrations(): array
+    private function getMigrations(): array
     {
         return [
-            'create_filament-lang-switch_table',
+            'create_preferred_locales_table',
         ];
     }
 }

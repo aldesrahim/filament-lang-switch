@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Aldesrahim\FilamentLangSwitch;
 
-use Aldesrahim\FilamentLangSwitch\Commands\FilamentLangSwitchCommand;
 use Aldesrahim\FilamentLangSwitch\Testing\TestsFilamentLangSwitch;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
@@ -12,7 +11,6 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
-use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -82,17 +80,31 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
         // Icon Registration
         FilamentIcon::register($this->getIcons());
 
-        // Handle Stubs
-        if (app()->runningInConsole()) {
-            foreach (app(Filesystem::class)->files(__DIR__.'/../stubs/') as $file) {
-                $this->publishes([
-                    $file->getRealPath() => base_path("stubs/filament-lang-switch/{$file->getFilename()}"),
-                ], 'filament-lang-switch-stubs');
-            }
-        }
-
         // Testing
         Testable::mixin(new TestsFilamentLangSwitch);
+
+        $this->app->bind(function (): FilamentLangSwitch {
+            $availableLocales = config('filament-lang-switch.available_locales');
+
+            return new FilamentLangSwitch($availableLocales)
+                ->setCookieName(
+                    config('filament-lang-switch.stores.cookie.cookie_name')
+                )
+                ->setCookieMinutes(
+                    config('filament-lang-switch.stores.cookie.minutes')
+                )
+                ->setSessionKey(
+                    config('filament-lang-switch.stores.session.session_key')
+                )
+                ->setAuthGuard(
+                    config('filament-lang-switch.stores.user.guard')
+                )
+                ->enableUserPreferredLocaleCache(
+                    config('filament-lang-switch.stores.user.cache.enabled')
+                );
+        });
+
+        $this->app->alias(FilamentLangSwitch::class, self::$name);
     }
 
     private function getAssetPackageName(): string
@@ -117,9 +129,7 @@ final class FilamentLangSwitchServiceProvider extends PackageServiceProvider
      */
     private function getCommands(): array
     {
-        return [
-            FilamentLangSwitchCommand::class,
-        ];
+        return [];
     }
 
     /**
